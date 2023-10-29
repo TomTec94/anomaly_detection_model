@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        #predictions {
+            font-family: Arial, sans-serif;
+        }
+        .prediction-item {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .status {
+            font-size: 1.5em;
+            margin-top: 10px;
+        }
+        .ok {
+            color: green;
+        }
+        .critical {
+            color: red;
+        }
+        .warning {
+            color: orange;
+        }
+        .parameters {
+            margin-top: 10px;
+        }
+        .parameter {
+            margin-bottom: 5px;
+        }
+    </style>
+    <script>
+        setTimeout(function(){
+            location.reload();
+        }, 5000);
+
+        function updateStatus(anomalyScore) {
+            var statusElement = document.querySelector('.status');
+            if (anomalyScore <= -0.2) {
+                statusElement.textContent = 'Status: Critical';
+                statusElement.classList.add('critical');
+                statusElement.classList.remove('ok', 'warning');
+            } else if (anomalyScore > -0.2 && anomalyScore <= -0.02) {
+                statusElement.textContent = 'Status: Warning';
+                statusElement.classList.add('warning');
+                statusElement.classList.remove('ok', 'critical');
+            } else {
+                statusElement.textContent = 'Status: OK';
+                statusElement.classList.add('ok');
+                statusElement.classList.remove('critical', 'warning');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var anomalyScore = parseFloat(document.querySelector('.prediction-item').getAttribute('data-anomaly-score'));
+            updateStatus(anomalyScore);
+
+            document.querySelectorAll('.parameter-value').forEach(function(element) {
+                var value = parseFloat(element.textContent);
+                element.textContent = value.toFixed(2);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Anomaly Detection Dashboard</h1>
+    <div id="predictions">
+        <h2>Current Status - Lathe Machine: </h2>
+        <div class="prediction-item" data-anomaly-score="{{ data_predictions[-1].anomaly_score }}">
+            <div class="parameters">
+                <div class="parameter"><strong>Temperature:</strong> <span class="parameter-value">{{ data_predictions[-1].data.temperature }}</span> °C</div>
+                <div class="parameter"><strong>Humidity:</strong> <span class="parameter-value">{{ data_predictions[-1].data.humidity }}</span> %</div>
+                <div class="parameter"><strong>Sound Volume:</strong> <span class="parameter-value">{{ data_predictions[-1].data.sound_volume }}</span> dB</div>
+            </div>
+            <div class="status"></div>
+        </div>
+    </div>
+</body>
+</html>
+
